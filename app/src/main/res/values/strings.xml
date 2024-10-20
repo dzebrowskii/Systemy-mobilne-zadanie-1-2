@@ -15,5 +15,10 @@
     <string name="incorrect_answer">zla odpowiedz</string>
     <string name="quiz">Quiz</string>
     <string name="Quiz">Quiz</string>
+    <string name="hint_button">Podpowiedz</string>
+    <string name="pokaz_odpowied">Pokaż odpowiedź</string>
+    <string name="czy_na_pewno_chcesz_zobaczy_odpowied">Czy na pewno chcesz zobaczyć odpowiedź?</string>
+    <string name="answer_was_shown">Odpowiedź była już wyświetlona!</string>
+
 
 </resources>

@@ -1,12 +1,17 @@
 package com.example.quizzadanie1;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -18,8 +23,20 @@ public class MainActivity extends AppCompatActivity {
     private Button trueButton;
     private Button falseButton;
     private Button nextButton;
+
     private TextView questionTextView;
     int counter = 0;
+    private Button hintButton;
+
+    private static final String KEY_CURRENT_INDEX = "currentIndex";
+    public static final String KEY_EXTRA_ANSWER = "pl.edu.pb.wi.quiz.correctAnswer";
+
+    private static final int REQUEST_CODE_PROMPT = 0;
+
+    private boolean answerWasShown;
+
+
+
 
 
     private Question[] questions = new Question[] {
@@ -36,11 +53,15 @@ public class MainActivity extends AppCompatActivity {
         boolean correctAnswer = questions[currentIndex].isTrueAnswer();
         int resultMessageId = 0;
 
-        if (userAnswer == correctAnswer) {
-            resultMessageId = R.string.correct_answer;
-            counter++;
+        if (answerWasShown) {
+            resultMessageId = R.string.answer_was_shown;
         } else {
-            resultMessageId = R.string.incorrect_answer;
+            if (userAnswer == correctAnswer) {
+                resultMessageId = R.string.correct_answer;
+                counter++;
+            } else {
+                resultMessageId = R.string.incorrect_answer;
+            }
         }
 
         Toast.makeText(this, resultMessageId, Toast.LENGTH_SHORT).show(); //wyswietlamy komunikat czy odpowiedz jest poprawna czy nie
@@ -76,12 +97,20 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    private ActivityResultLauncher<Intent> promptActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    answerWasShown = result.getData().getBooleanExtra(PromptActivity.KEY_EXTRA_ANSWER_SHOWN, false);
+                }
+            });
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Lifecycle", "Wywołana została metoda cyklu życia: onCreate");
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -89,8 +118,14 @@ public class MainActivity extends AppCompatActivity {
         falseButton = findViewById(R.id.false_button);
         nextButton = findViewById(R.id.next_button);
         questionTextView = findViewById(R.id.question_text_view);
+        hintButton = findViewById(R.id.hint_button);
+
+        if (savedInstanceState != null) {
+            currentIndex = savedInstanceState.getInt(KEY_CURRENT_INDEX);
+        }
 
         setNextQuestion();
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -119,10 +154,63 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 currentIndex = (currentIndex + 1);
+                answerWasShown = false;
                 setNextQuestion();
             }
         });
+
+        hintButton.setOnClickListener((v) -> {
+            Intent intent = new Intent(MainActivity.this, PromptActivity.class);
+
+            boolean correctAnswer = questions[currentIndex].isTrueAnswer();
+
+            intent.putExtra(KEY_EXTRA_ANSWER, correctAnswer);
+
+            promptActivityResultLauncher.launch(intent);
+        });
+
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("Lifecycle", "onStart called");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("Lifecycle", "onResume called");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("Lifecycle", "onPause called");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("Lifecycle", "onStop called");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("Lifecycle", "onDestroy called");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d("Lifecycle", "Wywołana została metoda: onSaveInstanceState");
+        outState.putInt(KEY_CURRENT_INDEX, currentIndex);
+    }
+
+
+
+
 
 
 }

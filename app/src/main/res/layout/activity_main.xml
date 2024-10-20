@@ -73,4 +73,16 @@
         android:layout_marginTop="20dp"
         android:layout_marginStart="8dp" />
 
+    <!-- Przycisk "Podpowiedz" -->
+    <Button
+        android:id="@+id/hint_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="112dp"
+        android:text="@string/hint_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/next_button" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
